@@ -2,13 +2,17 @@ package com.sergeyrodin.fragmentstask
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.viewpager2.widget.ViewPager2
+
+private const val EXTRA_FRAGMENT_NUMBER = "extra_fragment_number"
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,20 +21,23 @@ class MainActivity : AppCompatActivity() {
 
     private var fragmentNumber = 1
     private var notificationId = 0
-    private val savedNotificationIds = mutableMapOf<Int, MutableList<Int>>()
+    private val savedNotificationIds = mutableMapOf<Int, MutableList<Int>?>()
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        val numberFromNotification = intent?.getIntExtra(EXTRA_FRAGMENT_NUMBER, 1) ?: 1
+        pager.currentItem = numberFromNotification - 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         createNotificationChannel()
-
         pager = findViewById(R.id.pager)
-
         pagerAdapter = ViewPagerAdapter(this)
-
         addFragment()
-
         pager.adapter = pagerAdapter
     }
 
@@ -52,12 +59,29 @@ class MainActivity : AppCompatActivity() {
                     cancel(it)
                 }
             }
+
+            savedNotificationIds[fragmentNumber] = null
         }
     }
 
     fun createNewNotification(number: Int) {
+
+        val contentIntent = Intent(this, MainActivity::class.java).apply {
+            putExtra(EXTRA_FRAGMENT_NUMBER, number)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+
+        val contentPendingIntent = PendingIntent.getActivity(
+            this,
+            notificationId,
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val builder =
-            NotificationCompat.Builder(this, getString(R.string.channel_id))
+            NotificationCompat.Builder(applicationContext, getString(R.string.channel_id))
                 .setSmallIcon(R.drawable.ic_notification_small)
                 .setContentTitle(getString(R.string.notification_title))
                 .setContentText(getString(R.string.notification_text, number))
@@ -68,6 +92,8 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(contentPendingIntent)
+                .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(this)) {
             notify(notificationId, builder.build())
