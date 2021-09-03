@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <size android:height="166dp" android:width="166dp" />
+    <solid android:color="@color/teal_notification" />
+    <corners android:radius="83dp" />
+</shape>

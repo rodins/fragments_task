@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         createNotificationChannel()
+
         pager = findViewById(R.id.pager)
         pagerAdapter = ViewPagerAdapter(this)
         addFragment()
@@ -59,7 +60,6 @@ class MainActivity : AppCompatActivity() {
                     cancel(it)
                 }
             }
-
             savedNotificationIds[fragmentNumber] = null
         }
     }

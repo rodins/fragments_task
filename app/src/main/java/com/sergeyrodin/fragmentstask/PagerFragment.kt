@@ -1,18 +1,13 @@
 package com.sergeyrodin.fragmentstask
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 private const val ARG_NUMBER = "fragment_number"
 
@@ -38,21 +33,21 @@ class PagerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val txtNumber = view.findViewById<TextView>(R.id.txt_number)
-        val btnMinus = view.findViewById<Button>(R.id.btn_minus)
-        val btnPlus = view.findViewById<Button>(R.id.btn_plus)
+        val fabMinus = view.findViewById<FloatingActionButton>(R.id.fab_minus)
+        val fabPlus = view.findViewById<FloatingActionButton>(R.id.fab_plus)
         val btnNotification = view.findViewById<Button>(R.id.btn_notification)
 
         txtNumber.text = number.toString()
 
         if (number == 1) {
-            btnMinus.visibility = View.INVISIBLE
+            fabMinus.visibility = View.INVISIBLE
         }
 
-        btnPlus.setOnClickListener {
+        fabPlus.setOnClickListener {
             (requireActivity() as MainActivity).addFragment()
         }
 
-        btnMinus.setOnClickListener {
+        fabMinus.setOnClickListener {
             (requireActivity() as MainActivity).removeLastFragment()
         }
 
