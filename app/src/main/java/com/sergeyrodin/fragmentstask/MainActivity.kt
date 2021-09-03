@@ -3,6 +3,7 @@ package com.sergeyrodin.fragmentstask
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -13,6 +14,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.viewpager2.widget.ViewPager2
 
 private const val EXTRA_FRAGMENT_NUMBER = "extra_fragment_number"
+private const val SAVED_FRAGMENTS_COUNT = "save_fragments_count"
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,8 +40,25 @@ class MainActivity : AppCompatActivity() {
 
         pager = findViewById(R.id.pager)
         pagerAdapter = ViewPagerAdapter(this)
-        addFragment()
+
+        val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
+        val savedFragmentsCount = sharedPref.getInt(SAVED_FRAGMENTS_COUNT, 1)
+
+        repeat (savedFragmentsCount) {
+            addFragment()
+        }
+
         pager.adapter = pagerAdapter
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
+        with (sharedPref.edit()) {
+            putInt(SAVED_FRAGMENTS_COUNT, fragmentNumber-1)
+            apply()
+        }
     }
 
     fun addFragment() {
