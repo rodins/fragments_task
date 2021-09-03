@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pagerAdapter: ViewPagerAdapter
     private lateinit var pager: ViewPager2
 
-    private var fragmentNumber = 1
+    private var fragmentsCount = 0
     private var notificationId = 0
     private val savedNotificationIds = mutableMapOf<Int, MutableList<Int>?>()
 
@@ -56,30 +56,28 @@ class MainActivity : AppCompatActivity() {
 
         val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
         with (sharedPref.edit()) {
-            putInt(SAVED_FRAGMENTS_COUNT, fragmentNumber-1)
+            putInt(SAVED_FRAGMENTS_COUNT, fragmentsCount)
             apply()
         }
     }
 
     fun addFragment() {
-        pagerAdapter.addFragment(PagerFragment.newInstance(fragmentNumber++))
-        pager.currentItem = fragmentNumber - 1
+        fragmentsCount++
+        pagerAdapter.addFragment(PagerFragment.newInstance(fragmentsCount))
+        pager.currentItem = fragmentsCount-1
     }
 
     fun removeLastFragment() {
-        if (fragmentNumber > 1) {
-            fragmentNumber--
-            if (pager.currentItem == fragmentNumber) {
-                pager.currentItem = fragmentNumber - 1
-            }
+        if (fragmentsCount > 1) {
             pagerAdapter.removeLastFragment()
 
             with(NotificationManagerCompat.from(this)) {
-                savedNotificationIds[fragmentNumber]?.forEach {
+                savedNotificationIds[fragmentsCount]?.forEach {
                     cancel(it)
                 }
             }
-            savedNotificationIds[fragmentNumber] = null
+            savedNotificationIds[fragmentsCount] = null
+            fragmentsCount--
         }
     }
 
